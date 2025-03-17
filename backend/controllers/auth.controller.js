@@ -65,22 +65,57 @@ export const verifyEmail = async (req, res) => {
     await user.save();
 
     await sendWelcomeEmail(user.email, user.name);
-    res
-      .status(200)
-      .json({
-        success: true,
-        message: "Email verified successfully",
-        user: { ...user._doc, password: undefined },
-      });
+    res.status(200).json({
+      success: true,
+      message: "Email verified successfully",
+      user: { ...user._doc, password: undefined },
+    });
   } catch (error) {}
 };
 
 export const login = async (req, res) => {
   try {
-  } catch (error) {}
+    const { email, password } = req.body;
+    if (!email || !password) {
+      return res
+        .status(400)
+        .json({ success: false, message: "All fields are required" });
+    }
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid credentials" });
+    }
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid credentials" });
+    }
+    generateTokenAndSetCookie(res, user._id);
+
+    user.lastLogin = new Date();
+    await user.save();
+
+    res
+      .status(200)
+      .json({
+        success: true,
+        message: "Logged in successfully",
+        user: { ...user._doc, password: undefined },
+      });
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).json({ success: false, message: error.message });
+  }
 };
 
 export const logout = async (req, res) => {
   try {
-  } catch (error) {}
+    res.clearCookie("token");
+    res.status(200).json({ success: true, message: "Logged out successfully" });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
 };
