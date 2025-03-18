@@ -162,7 +162,7 @@ export const resetPassword = async (req, res) => {
     }
     user.password = await bcrypt.hash(password, 10);
     user.resetPasswordToken = undefined;
-    user.resetPasswordExpiresAt = undefined;
+    user.resetPassWordExpiresAt = undefined; 
     await user.save();
     await sendPasswordResetSuccessEmail(user.email);
     res.status(200).json({ message: "Password reset successfully" });
@@ -170,3 +170,16 @@ export const resetPassword = async (req, res) => {
     res.status(400).json({ success: false, message: error.message });
   }
 };
+
+export const checkAuth = async (req, res) => {
+    try {
+        const user = await User.findById(req.userId).select("-password"); // exclude password
+        if (!user) {
+            return res.status(400).json({ success: false, message: "User not found" });
+        }
+        res.status(200).json({ success: true, user });
+    } catch (error) {
+        res.status(400).json({ success: false, message: error.message });
+        crossOriginIsolated.log("Error checking authentication", error.message);
+    }
+}
