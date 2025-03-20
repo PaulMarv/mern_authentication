@@ -1,4 +1,5 @@
 import { Route, Routes } from "react-router-dom";
+import { Toaster } from "react-hot-toast";
 import FloatingShape from "./components/FloatingShape";
 import LoginPage from "./pages/loginPage";
 import SignupPage from "./pages/signupPage";
@@ -35,6 +36,7 @@ function App() {
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/verify-email" element={<EmailVerificationPage />} />
       </Routes>
+      <Toaster />
     </div>
   );
 }
