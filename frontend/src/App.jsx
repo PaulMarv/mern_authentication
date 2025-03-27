@@ -104,6 +104,8 @@ function App() {
             </RedirectAuthenticatedUser>
           }
         />
+        //catch all route
+        <Route path="*" element={<Navigate to="/" />} />
       </Routes>
       <Toaster />
     </div>
